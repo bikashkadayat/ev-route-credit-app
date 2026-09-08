@@ -1,0 +1,133 @@
+{
+  "config_type": "CUSTOMER",
+  "version_no": 1,
+  "name": "Customer scorecard v1 - expert baseline",
+  "notes": "Expert-judgement baseline. Knock-out rules are evaluated before scoring. Doc 07 §7.4.",
+  "grade_thresholds": [
+    { "grade": "A", "min": 85, "max": 100, "label": "A - Excellent", "risk_level": "VERY_LOW" },
+    { "grade": "B", "min": 70, "max": 84.99, "label": "B - Good", "risk_level": "LOW" },
+    { "grade": "C", "min": 55, "max": 69.99, "label": "C - Moderate", "risk_level": "MODERATE" },
+    { "grade": "D", "min": 40, "max": 54.99, "label": "D - High Risk", "risk_level": "HIGH" },
+    { "grade": "E", "min": 0, "max": 39.99, "label": "E - Very High Risk", "risk_level": "VERY_HIGH" }
+  ],
+  "decision_rules": {
+    "knockouts": {
+      "blacklist": true,
+      "active_default": true,
+      "bureau_score_floor": 550,
+      "min_age": 21,
+      "max_age_at_maturity": 65,
+      "min_down_payment_ratio": 0.20,
+      "max_amount": 5000000,
+      "max_tenure_months": 84,
+      "route_class_c": true,
+      "licence_required": true,
+      "max_used_vehicle_age_years": 3
+    },
+    "thin_file_score": 45
+  },
+  "components": [
+    {
+      "component_code": "CREDIT_HISTORY",
+      "label": "Credit / Bureau History",
+      "weight": 0.3000,
+      "display_order": 1,
+      "description": "Past repayment behaviour remains the single strongest predictor. Thin files score at the configured default and cannot auto-approve.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "BUREAU_SCORE", "weight": 0.50, "rule": { "type": "LINEAR", "input": "bureau_score", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 550, "y": 0 }, { "x": 600, "y": 25 }, { "x": 650, "y": 45 }, { "x": 700, "y": 65 }, { "x": 750, "y": 82 }, { "x": 800, "y": 92 }, { "x": 900, "y": 100 }] } },
+          { "code": "REPAYMENT_RECORD", "weight": 0.20, "rule": { "type": "LINEAR", "input": "max_dpd_last_24m", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 15, "y": 80 }, { "x": 30, "y": 55 }, { "x": 60, "y": 30 }, { "x": 90, "y": 10 }, { "x": 180, "y": 0 }] } },
+          { "code": "DEFAULT_HISTORY", "weight": 0.15, "rule": { "type": "LINEAR", "input": "previous_default_count", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 1, "y": 45 }, { "x": 2, "y": 15 }, { "x": 3, "y": 0 }] } },
+          { "code": "CREDIT_DEPTH", "weight": 0.10, "rule": { "type": "LINEAR", "input": "credit_history_months", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 20 }, { "x": 6, "y": 40 }, { "x": 12, "y": 60 }, { "x": 24, "y": 80 }, { "x": 48, "y": 95 }, { "x": 72, "y": 100 }] } },
+          { "code": "ENQUIRY_BEHAVIOUR", "weight": 0.05, "rule": { "type": "LINEAR", "input": "enquiries_last_6m", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 1, "y": 95 }, { "x": 2, "y": 85 }, { "x": 4, "y": 60 }, { "x": 6, "y": 30 }, { "x": 10, "y": 0 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "INCOME_CASHFLOW",
+      "label": "Income & Cash Flow",
+      "weight": 0.2500,
+      "display_order": 2,
+      "description": "Capacity to pay from all sources, weighted towards verified evidence.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "INCOME_ADEQUACY", "weight": 0.35, "rule": { "type": "LINEAR", "input": "total_monthly_income", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 15000, "y": 0 }, { "x": 25000, "y": 30 }, { "x": 40000, "y": 55 }, { "x": 60000, "y": 75 }, { "x": 100000, "y": 92 }, { "x": 200000, "y": 100 }] } },
+          { "code": "DISPOSABLE_VS_EMI", "weight": 0.35, "rule": { "type": "LINEAR", "input": "disposable_to_emi_ratio", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0.8, "y": 0 }, { "x": 1.0, "y": 25 }, { "x": 1.3, "y": 55 }, { "x": 1.6, "y": 75 }, { "x": 2.0, "y": 90 }, { "x": 3.0, "y": 100 }] } },
+          { "code": "INCOME_STABILITY", "weight": 0.20, "rule": { "type": "BANDED", "input": "income_proof_class", "default_score": 50, "bands": [{ "value": "AUDITED_FINANCIALS", "score": 100 }, { "value": "BANK_STATEMENT_VERIFIED", "score": 90 }, { "value": "SALARY_SLIP_VERIFIED", "score": 85 }, { "value": "BANK_STATEMENT_UNVERIFIED", "score": 60 }, { "value": "SELF_DECLARED", "score": 35 }] } },
+          { "code": "BANKING_BEHAVIOUR", "weight": 0.10, "rule": { "type": "LINEAR", "input": "balance_to_emi_ratio", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 1, "y": 40 }, { "x": 2, "y": 65 }, { "x": 4, "y": 85 }, { "x": 8, "y": 100 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "EXISTING_DEBT",
+      "label": "Existing Debt Burden",
+      "weight": 0.1500,
+      "display_order": 3,
+      "description": "Higher score means a lighter burden.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "FOIR_POST_LOAN", "weight": 0.50, "rule": { "type": "LINEAR", "input": "foir_post_loan", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0.20, "y": 100 }, { "x": 0.35, "y": 85 }, { "x": 0.45, "y": 65 }, { "x": 0.55, "y": 40 }, { "x": 0.65, "y": 15 }, { "x": 0.80, "y": 0 }] } },
+          { "code": "DTI_PRE_LOAN", "weight": 0.25, "rule": { "type": "LINEAR", "input": "dti_ratio", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 0.15, "y": 85 }, { "x": 0.25, "y": 65 }, { "x": 0.40, "y": 35 }, { "x": 0.55, "y": 10 }, { "x": 0.70, "y": 0 }] } },
+          { "code": "OBLIGATION_COUNT", "weight": 0.15, "rule": { "type": "LINEAR", "input": "existing_loan_count", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 1, "y": 90 }, { "x": 2, "y": 75 }, { "x": 3, "y": 55 }, { "x": 4, "y": 35 }, { "x": 6, "y": 10 }] } },
+          { "code": "OVERDUE_OBLIGATIONS", "weight": 0.10, "rule": { "type": "LINEAR", "input": "overdue_obligation_count", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 1, "y": 40 }, { "x": 2, "y": 10 }, { "x": 3, "y": 0 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "DOWN_PAYMENT",
+      "label": "Down Payment / Equity",
+      "weight": 0.1000,
+      "display_order": 4,
+      "description": "Skin in the game; also drives recovery on default. Below 20% the knock-out has already fired.",
+      "scoring_rules": {
+        "type": "LINEAR",
+        "input": "down_payment_ratio",
+        "direction": "HIGHER_IS_BETTER",
+        "points": [{ "x": 0.20, "y": 30 }, { "x": 0.25, "y": 50 }, { "x": 0.30, "y": 68 }, { "x": 0.40, "y": 85 }, { "x": 0.50, "y": 95 }, { "x": 0.60, "y": 100 }]
+      }
+    },
+    {
+      "component_code": "EXPERIENCE",
+      "label": "Business / Driving Experience",
+      "weight": 0.1000,
+      "display_order": 5,
+      "description": "Sub-factor set switches on applicant type.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "variant_by": "applicant_class",
+        "variants": {
+          "INDIVIDUAL": [
+            { "code": "COMMERCIAL_YEARS", "weight": 0.50, "rule": { "type": "LINEAR", "input": "commercial_driving_years", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 10 }, { "x": 1, "y": 35 }, { "x": 3, "y": 60 }, { "x": 5, "y": 80 }, { "x": 8, "y": 92 }, { "x": 12, "y": 100 }] } },
+            { "code": "DRIVING_YEARS", "weight": 0.25, "rule": { "type": "LINEAR", "input": "driving_experience_years", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 10 }, { "x": 2, "y": 40 }, { "x": 5, "y": 70 }, { "x": 10, "y": 90 }, { "x": 15, "y": 100 }] } },
+            { "code": "EV_EXPERIENCE", "weight": 0.15, "rule": { "type": "BANDED", "input": "has_previous_ev_experience", "default_score": 50, "bands": [{ "value": true, "score": 100 }, { "value": false, "score": 50 }] } },
+            { "code": "LICENCE_VALIDITY", "weight": 0.10, "rule": { "type": "LINEAR", "input": "licence_months_remaining", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 6, "y": 50 }, { "x": 12, "y": 80 }, { "x": 24, "y": 100 }] } }
+          ],
+          "BUSINESS": [
+            { "code": "BUSINESS_YEARS", "weight": 0.55, "rule": { "type": "LINEAR", "input": "business_experience_years", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 10 }, { "x": 1, "y": 30 }, { "x": 3, "y": 60 }, { "x": 5, "y": 78 }, { "x": 10, "y": 95 }, { "x": 15, "y": 100 }] } },
+            { "code": "FLEET_SIZE", "weight": 0.25, "rule": { "type": "LINEAR", "input": "fleet_size", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 30 }, { "x": 1, "y": 50 }, { "x": 3, "y": 70 }, { "x": 5, "y": 85 }, { "x": 10, "y": 95 }, { "x": 20, "y": 100 }] } },
+            { "code": "EV_EXPERIENCE", "weight": 0.20, "rule": { "type": "BANDED", "input": "has_previous_ev_experience", "default_score": 45, "bands": [{ "value": true, "score": 100 }, { "value": false, "score": 45 }] } }
+          ]
+        }
+      }
+    },
+    {
+      "component_code": "VEHICLE_ECONOMICS",
+      "label": "Vehicle Economics",
+      "weight": 0.1000,
+      "display_order": 6,
+      "description": "Does the asset itself service the loan?",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "DSCR", "weight": 0.45, "rule": { "type": "LINEAR", "input": "dscr", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0.8, "y": 0 }, { "x": 1.0, "y": 25 }, { "x": 1.25, "y": 55 }, { "x": 1.5, "y": 75 }, { "x": 2.0, "y": 92 }, { "x": 3.0, "y": 100 }] } },
+          { "code": "ENERGY_EFFICIENCY", "weight": 0.20, "rule": { "type": "LINEAR", "input": "energy_cost_per_km", "direction": "LOWER_IS_BETTER", "points": [{ "x": 1.0, "y": 100 }, { "x": 2.0, "y": 85 }, { "x": 3.0, "y": 65 }, { "x": 4.5, "y": 35 }, { "x": 6.0, "y": 10 }] } },
+          { "code": "PAYBACK", "weight": 0.20, "rule": { "type": "LINEAR", "input": "payback_months", "direction": "LOWER_IS_BETTER", "points": [{ "x": 12, "y": 100 }, { "x": 24, "y": 85 }, { "x": 36, "y": 65 }, { "x": 48, "y": 40 }, { "x": 60, "y": 20 }, { "x": 84, "y": 0 }] } },
+          { "code": "WARRANTY_COVERAGE", "weight": 0.15, "rule": { "type": "LINEAR", "input": "warranty_to_tenure_ratio", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0.5, "y": 20 }, { "x": 0.75, "y": 55 }, { "x": 1.0, "y": 85 }, { "x": 1.25, "y": 100 }] } }
+        ]
+      }
+    }
+  ]
+}

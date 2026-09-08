@@ -1,0 +1,20 @@
+{
+  "_description": "Every non-2xx response from the API uses exactly this shape.",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed",
+    "details": [
+      { "field": "total_distance_km", "code": "GREATER_THAN", "message": "Input should be greater than 0" }
+    ],
+    "request_id": "01JBQ9X2K7M4N8P3R5T7V9W1Y3",
+    "timestamp": "2026-09-08T10:14:22Z"
+  },
+  "_codes": [
+    "VALIDATION_ERROR", "INVALID_CREDENTIALS", "ACCOUNT_LOCKED", "ACCOUNT_INACTIVE",
+    "TOKEN_EXPIRED", "TOKEN_REUSE_DETECTED", "PERMISSION_DENIED", "RESOURCE_NOT_FOUND",
+    "DUPLICATE_RESOURCE", "STALE_VERSION", "INVALID_STATE_TRANSITION", "CONFIG_NOT_PUBLISHED",
+    "WEIGHTS_NOT_100", "ROUTE_ASSESSMENT_STALE", "KNOCKOUT_TRIGGERED", "POLICY_LIMIT_EXCEEDED",
+    "OVERRIDE_JUSTIFICATION_REQUIRED", "EXTERNAL_PROVIDER_UNAVAILABLE", "IDEMPOTENCY_KEY_REUSED",
+    "RATE_LIMIT_EXCEEDED"
+  ]
+}

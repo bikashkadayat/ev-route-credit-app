@@ -1,0 +1,591 @@
+{
+  "version": 1,
+  "engine_version": "rule-engine@1.0.0",
+  "notes": "Default early-warning rule catalogue \u2014 Doc 08 \u00a78.5. 22 rules, 27 conditions. Mirrored by db/seed/01_reference_data.sql; tests/unit/risk/test_rule_defaults.py asserts the two cannot drift. CATALOGUE FIX 2026-09-08: USAGE_DROP_MODERATE upper bound moved from -35% to -50%. The original bands left -35%..-50% uncovered, so a vehicle losing 38% of its usage raised no alert at all.",
+  "rules": [
+    {
+      "rule_code": "EMI_OVERDUE_30_PLUS",
+      "name": "EMI overdue more than 30 days",
+      "description": "Instalment unpaid beyond 30 days. The account is materially delinquent.",
+      "category": "REPAYMENT",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 24,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 10,
+      "recommended_action": "Issue a formal demand notice. Assess restructure versus recovery. Verify vehicle location within 48 hours.",
+      "conditions": [
+        {
+          "metric_code": "DAYS_PAST_DUE",
+          "operator": "GT",
+          "threshold_value": 30,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "EMI_MISSED_CONSECUTIVE",
+      "name": "Two or more consecutive missed instalments",
+      "description": "A pattern, not an accident.",
+      "category": "REPAYMENT",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 24,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 11,
+      "recommended_action": "Escalate to the Risk Manager. Arrange a field visit within 48 hours.",
+      "conditions": [
+        {
+          "metric_code": "CONSECUTIVE_MISSED_EMI",
+          "operator": "GTE",
+          "threshold_value": 2,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "EMI_OVERDUE_90_PLUS",
+      "name": "EMI overdue more than 90 days",
+      "description": "Non-performing.",
+      "category": "REPAYMENT",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 48,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 12,
+      "recommended_action": "Classification review. Initiate the recovery process per policy.",
+      "conditions": [
+        {
+          "metric_code": "DAYS_PAST_DUE",
+          "operator": "GT",
+          "threshold_value": 90,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "EMI_OVERDUE_1_30",
+      "name": "EMI overdue 1-30 days",
+      "description": "Early arrears.",
+      "category": "REPAYMENT",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 20,
+      "recommended_action": "Reminder call and SMS. Confirm a payment date and record it as an activity.",
+      "conditions": [
+        {
+          "metric_code": "DAYS_PAST_DUE",
+          "operator": "BETWEEN",
+          "threshold_value": 1,
+          "threshold_value_2": 30,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "PARTIAL_PAYMENT_PATTERN",
+      "name": "Repeated partial payments",
+      "description": "Two or more partial payments in 90 days.",
+      "category": "REPAYMENT",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 25,
+      "recommended_action": "Review cash flow. Consider aligning the EMI date with the earnings cycle.",
+      "conditions": [
+        {
+          "metric_code": "PARTIAL_PAYMENT_COUNT_90D",
+          "operator": "GTE",
+          "threshold_value": 2,
+          "window_days": 90,
+          "aggregation": "COUNT",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "OVERDUE_AMOUNT_MATERIAL",
+      "name": "Material overdue amount",
+      "description": "Overdue balance above the materiality threshold.",
+      "category": "REPAYMENT",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 26,
+      "recommended_action": "Prioritise collection contact.",
+      "conditions": [
+        {
+          "metric_code": "OVERDUE_AMOUNT",
+          "operator": "GTE",
+          "threshold_value": 50000,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "VEHICLE_INACTIVE_7D",
+      "name": "Vehicle inactive for 7 days",
+      "description": "No recorded movement for a week.",
+      "category": "USAGE",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 48,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 15,
+      "recommended_action": "Immediate field verification. Possible sale, seizure, accident or major breakdown.",
+      "conditions": [
+        {
+          "metric_code": "ZERO_KM_STREAK",
+          "operator": "GTE",
+          "threshold_value": 7,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "USAGE_COLLAPSE",
+      "name": "Usage down more than 50% versus baseline",
+      "description": "Operation has effectively stopped.",
+      "category": "USAGE",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 16,
+      "recommended_action": "Field visit. Verify possession and operating status.",
+      "conditions": [
+        {
+          "metric_code": "USAGE_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -50,
+          "window_days": 7,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        },
+        {
+          "metric_code": "ACTIVE_DAYS_30D",
+          "operator": "GTE",
+          "threshold_value": 3,
+          "window_days": 30,
+          "aggregation": "COUNT",
+          "sequence_no": 2
+        }
+      ]
+    },
+    {
+      "rule_code": "ROUTE_ABANDONED",
+      "name": "Vehicle no longer operating on the financed route",
+      "description": "Majority of distance off corridor.",
+      "category": "ROUTE",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 17,
+      "recommended_action": "Re-underwrite against the actual route or treat as a covenant breach.",
+      "conditions": [
+        {
+          "metric_code": "ROUTE_DEVIATION_PCT",
+          "operator": "GTE",
+          "threshold_value": 60,
+          "window_days": 7,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "VEHICLE_INACTIVE_3D",
+      "name": "Vehicle inactive for 3-6 days",
+      "description": "Short inactivity streak.",
+      "category": "USAGE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 30,
+      "recommended_action": "Call the borrower. Check for breakdown or driver absence.",
+      "conditions": [
+        {
+          "metric_code": "ZERO_KM_STREAK",
+          "operator": "BETWEEN",
+          "threshold_value": 3,
+          "threshold_value_2": 6,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "USAGE_DROP_MODERATE",
+      "name": "Daily usage down 20-50% versus baseline",
+      "description": "Sustained fall in daily kilometres suggests reduced operation, illness, competition or informal sale of the vehicle. The upper bound is -50% so that this rule and USAGE_COLLAPSE tile the whole decline range with no blind spot.",
+      "category": "USAGE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 40,
+      "recommended_action": "Call the borrower. Confirm the vehicle is still in their possession and running the financed route. Record the outcome.",
+      "conditions": [
+        {
+          "metric_code": "USAGE_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -20,
+          "window_days": 7,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        },
+        {
+          "metric_code": "USAGE_CHANGE_PCT",
+          "operator": "GT",
+          "threshold_value": -50,
+          "window_days": 7,
+          "aggregation": "AVG",
+          "sequence_no": 2
+        },
+        {
+          "metric_code": "ACTIVE_DAYS_30D",
+          "operator": "GTE",
+          "threshold_value": 5,
+          "window_days": 30,
+          "aggregation": "COUNT",
+          "sequence_no": 3
+        }
+      ]
+    },
+    {
+      "rule_code": "LOW_ACTIVE_DAYS",
+      "name": "Fewer than 15 active days in 30",
+      "description": "Chronic under-utilisation.",
+      "category": "USAGE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 41,
+      "recommended_action": "Investigate under-utilisation: permits, driver availability, competition.",
+      "conditions": [
+        {
+          "metric_code": "ACTIVE_DAYS_30D",
+          "operator": "LTE",
+          "threshold_value": 15,
+          "window_days": 30,
+          "aggregation": "COUNT",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "ROUTE_DEVIATION_MODERATE",
+      "name": "Route deviation 30-60%",
+      "description": "Operating pattern differs from the financed assumption.",
+      "category": "ROUTE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 42,
+      "recommended_action": "Confirm the operating pattern. The route assumption may need revision.",
+      "conditions": [
+        {
+          "metric_code": "ROUTE_DEVIATION_PCT",
+          "operator": "BETWEEN",
+          "threshold_value": 30,
+          "threshold_value_2": 59.99,
+          "window_days": 7,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "REVENUE_COLLAPSE",
+      "name": "Inferred revenue down more than 40%",
+      "description": "Earning capacity materially impaired.",
+      "category": "REVENUE",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 18,
+      "recommended_action": "Re-assess affordability. Open a restructure discussion.",
+      "conditions": [
+        {
+          "metric_code": "REVENUE_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -40,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "REVENUE_DECLINE",
+      "name": "Inferred revenue down 20-40%",
+      "description": "Earnings deteriorating.",
+      "category": "REVENUE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 45,
+      "recommended_action": "Review route economics. Check competition and fare changes.",
+      "conditions": [
+        {
+          "metric_code": "REVENUE_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -20,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        },
+        {
+          "metric_code": "REVENUE_CHANGE_PCT",
+          "operator": "GT",
+          "threshold_value": -40,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 2
+        }
+      ]
+    },
+    {
+      "rule_code": "DSCR_BELOW_ONE",
+      "name": "Inferred earnings no longer cover the EMI",
+      "description": "Actual DSCR below 1.0.",
+      "category": "REVENUE",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 46,
+      "recommended_action": "Review before it becomes arrears. Consider a tenure extension.",
+      "conditions": [
+        {
+          "metric_code": "DSCR_ACTUAL",
+          "operator": "LT",
+          "threshold_value": 1.0,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "BATTERY_HEALTH_CRITICAL",
+      "name": "Battery state of health below 70%",
+      "description": "Collateral value materially impaired.",
+      "category": "BATTERY",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 19,
+      "recommended_action": "Check warranty status. Reassess LTV and collateral coverage.",
+      "conditions": [
+        {
+          "metric_code": "BATTERY_SOH",
+          "operator": "LT",
+          "threshold_value": 70,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "BATTERY_HEALTH_LOW",
+      "name": "Battery state of health 70-80%",
+      "description": "Degradation beyond the expected curve.",
+      "category": "BATTERY",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 336,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 50,
+      "recommended_action": "Advise service. Confirm warranty coverage. Monitor monthly.",
+      "conditions": [
+        {
+          "metric_code": "BATTERY_SOH",
+          "operator": "BETWEEN",
+          "threshold_value": 70,
+          "threshold_value_2": 79.99,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "CHARGING_DROP_SEVERE",
+      "name": "Charging sessions down more than 60%",
+      "description": "Charging behaviour has changed sharply.",
+      "category": "BATTERY",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 51,
+      "recommended_action": "Corroborate with usage. Possible off-grid charging or an idle vehicle.",
+      "conditions": [
+        {
+          "metric_code": "CHARGING_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -60,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "CHARGING_DROP_MODERATE",
+      "name": "Charging sessions down 30-60%",
+      "description": "Reduced charging activity.",
+      "category": "BATTERY",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 168,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 52,
+      "recommended_action": "Monitor. Call if it persists for 14 days.",
+      "conditions": [
+        {
+          "metric_code": "CHARGING_CHANGE_PCT",
+          "operator": "LTE",
+          "threshold_value": -30,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 1
+        },
+        {
+          "metric_code": "CHARGING_CHANGE_PCT",
+          "operator": "GT",
+          "threshold_value": -60,
+          "window_days": 30,
+          "aggregation": "AVG",
+          "sequence_no": 2
+        }
+      ]
+    },
+    {
+      "rule_code": "TELEMETRY_SILENT_5D",
+      "name": "No telemetry for 5 days or more",
+      "description": "The vehicle has stopped reporting.",
+      "category": "DATA_QUALITY",
+      "severity": "RED",
+      "condition_logic": "ALL",
+      "suppression_hours": 48,
+      "auto_resolve": true,
+      "assign_to_role": "RISK_MANAGER",
+      "sla_hours_acknowledge": 4,
+      "sla_hours_resolve": 72,
+      "priority": 21,
+      "recommended_action": "Device removed, tampered with, or the vehicle disposed of. Field verification required.",
+      "conditions": [
+        {
+          "metric_code": "DAYS_SINCE_TELEMETRY",
+          "operator": "GTE",
+          "threshold_value": 5,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    },
+    {
+      "rule_code": "TELEMETRY_SILENT_2D",
+      "name": "No telemetry for 2-4 days",
+      "description": "Feed interruption.",
+      "category": "DATA_QUALITY",
+      "severity": "YELLOW",
+      "condition_logic": "ALL",
+      "suppression_hours": 72,
+      "auto_resolve": true,
+      "assign_to_role": "PORTFOLIO_MANAGER",
+      "sla_hours_acknowledge": 48,
+      "sla_hours_resolve": 240,
+      "priority": 60,
+      "recommended_action": "Contact the borrower and the device provider.",
+      "conditions": [
+        {
+          "metric_code": "DAYS_SINCE_TELEMETRY",
+          "operator": "BETWEEN",
+          "threshold_value": 2,
+          "threshold_value_2": 4,
+          "aggregation": "LATEST",
+          "sequence_no": 1
+        }
+      ]
+    }
+  ]
+}

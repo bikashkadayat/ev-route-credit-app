@@ -1,0 +1,46 @@
+{
+  "_endpoint": "POST /api/v1/applicants/{id}/credit-report",
+  "_provider": "MockCIBProvider (deterministic: derived from a hash of the ID number)",
+  "provider": "MOCK_CIB",
+  "enquiry_id": "CIB-MOCK-2026-0000431",
+  "enquiry_date": "2026-09-08",
+  "valid_until": "2026-12-07",
+  "subject": {
+    "id_type": "CITIZENSHIP",
+    "id_number": "27-01-70-****",
+    "full_name": "Ram Bahadur Tamang"
+  },
+  "score": 742,
+  "score_range": { "min": 300, "max": 900 },
+  "grade": "B",
+  "credit_history_months": 54,
+  "active_loan_count": 2,
+  "total_outstanding_npr": 385000.0,
+  "total_monthly_emi_npr": 12400.0,
+  "previous_default_count": 0,
+  "current_overdue_npr": 0.0,
+  "max_dpd_last_24m": 12,
+  "blacklisted": false,
+  "enquiries_last_6m": 1,
+  "repayment_history": [
+    { "month": "2026-08", "status": "ON_TIME" },
+    { "month": "2026-07", "status": "ON_TIME" },
+    { "month": "2026-06", "status": "LATE_1_30" },
+    { "month": "2026-05", "status": "ON_TIME" },
+    { "month": "2026-04", "status": "ON_TIME" }
+  ],
+  "obligations": [
+    {
+      "lender_name": "Nabil Bank",
+      "loan_type": "PERSONAL",
+      "original_amount": 500000.0,
+      "outstanding_amount": 385000.0,
+      "monthly_emi": 12400.0,
+      "remaining_tenure_months": 34,
+      "is_overdue": false,
+      "days_past_due": 0
+    }
+  ],
+  "is_manual_entry": false,
+  "fetched_at": "2026-09-08T04:31:55Z"
+}

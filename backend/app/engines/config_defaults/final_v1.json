@@ -1,0 +1,80 @@
+{
+  "config_type": "FINAL",
+  "version_no": 1,
+  "name": "Combined risk scorecard v1 - expert baseline",
+  "notes": "Route 40 / Customer 40 / Vehicle economics 20. Decision matrix is first-match-wins. Doc 07 §7.5.",
+  "grade_thresholds": [
+    { "grade": "A", "min": 85, "max": 100, "label": "A - Very Low Risk", "risk_level": "VERY_LOW" },
+    { "grade": "B", "min": 70, "max": 84.99, "label": "B - Low Risk", "risk_level": "LOW" },
+    { "grade": "C", "min": 55, "max": 69.99, "label": "C - Moderate Risk", "risk_level": "MODERATE" },
+    { "grade": "D", "min": 40, "max": 54.99, "label": "D - High Risk", "risk_level": "HIGH" },
+    { "grade": "E", "min": 0, "max": 39.99, "label": "E - Very High Risk", "risk_level": "VERY_HIGH" }
+  ],
+  "decision_rules": {
+    "approve": {
+      "min_final_score": 75,
+      "allowed_customer_grades": ["A", "B"],
+      "allowed_route_grades": ["A", "B"],
+      "min_dscr": 1.30,
+      "max_foir": 0.50,
+      "require_credit_history": true
+    },
+    "reject": {
+      "max_final_score": 50,
+      "disallowed_customer_grades": ["E"],
+      "min_dscr": 1.00
+    },
+    "knockouts": {
+      "blacklist": true,
+      "active_default": true,
+      "bureau_score_floor": 550,
+      "min_age": 21,
+      "max_age_at_maturity": 65,
+      "min_down_payment_ratio": 0.20,
+      "max_amount": 5000000,
+      "max_tenure_months": 84,
+      "route_class_c": true,
+      "licence_required": true,
+      "max_used_vehicle_age_years": 3
+    },
+    "structuring": {
+      "ltv_by_grade": { "A": 80, "B": 75, "C": 70, "D": 60 },
+      "absolute_ltv_ceiling": 80,
+      "tenure_by_grade": { "A": 84, "B": 72, "C": 60, "D": 48 },
+      "base_interest_rate": 12.5,
+      "grade_rate_premium": { "A": 0.0, "B": 0.5, "C": 1.5, "D": 3.0 },
+      "foir_cap": 0.55,
+      "dscr_min": 1.25,
+      "min_amount": 100000,
+      "max_amount": 5000000,
+      "warranty_grace_months": 12,
+      "amount_rounding": 10000
+    }
+  },
+  "components": [
+    {
+      "component_code": "ROUTE_SCORE",
+      "label": "Route Assessment",
+      "weight": 0.4000,
+      "display_order": 1,
+      "description": "The corridor the vehicle will operate on.",
+      "scoring_rules": { "type": "PASSTHROUGH", "input": "route_score" }
+    },
+    {
+      "component_code": "CUSTOMER_SCORE",
+      "label": "Customer Creditworthiness",
+      "weight": 0.4000,
+      "display_order": 2,
+      "description": "The borrower.",
+      "scoring_rules": { "type": "PASSTHROUGH", "input": "customer_score" }
+    },
+    {
+      "component_code": "VEHICLE_ECONOMICS_SCORE",
+      "label": "Vehicle Economics",
+      "weight": 0.2000,
+      "display_order": 3,
+      "description": "The asset's own ability to service the loan.",
+      "scoring_rules": { "type": "PASSTHROUGH", "input": "vehicle_economics_score" }
+    }
+  ]
+}

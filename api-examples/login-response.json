@@ -1,0 +1,50 @@
+{
+  "_endpoint": "POST /api/v1/auth/login",
+  "_request": {
+    "email": "sabina.karki@bank.com.np",
+    "password": "Demo@2026!Ev",
+    "remember_me": false
+  },
+  "_response_200": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjFiOGU0Mi0yYjZkLTRiMWUtOWExMC0wZDVmN2M4ZTFhMjIiLCJyb2xlIjoiUklTS19NQU5BR0VSIn0.SIGNATURE",
+    "token_type": "bearer",
+    "expires_in": 900,
+    "refresh_token": "8f2a4c19e7b3d05a1f6c8e2b4d7a903c5e1f8b2d6a4c9e3f7b1d5a8c2e6f4b90",
+    "user": {
+      "id": "3f1b8e42-2b6d-4b1e-9a10-0d5f7c8e1a22",
+      "email": "sabina.karki@bank.com.np",
+      "full_name": "Sabina Karki",
+      "role": { "code": "RISK_MANAGER", "name": "Risk Manager" },
+      "permissions": [
+        "route:read", "route:create", "route:update", "route:assess",
+        "applicant:read", "applicant:read_sensitive", "applicant:credit_check",
+        "application:read", "application:assess", "application:approve", "application:override",
+        "loan:create", "portfolio:read",
+        "alert:read", "alert:assign", "alert:resolve",
+        "risk:config:read", "risk:config:publish", "risk:waiver",
+        "settings:read", "settings:update", "report:read", "audit:read"
+      ],
+      "branch_code": "HO",
+      "must_change_password": false,
+      "last_login_at": "2026-09-08T03:58:11Z"
+    }
+  },
+  "_response_401": {
+    "error": {
+      "code": "INVALID_CREDENTIALS",
+      "message": "Incorrect email or password",
+      "details": [],
+      "request_id": "01JBQ9X2K7M4N8P3R5T7V9W1Y3",
+      "timestamp": "2026-09-08T10:14:22Z"
+    }
+  },
+  "_response_423": {
+    "error": {
+      "code": "ACCOUNT_LOCKED",
+      "message": "Account locked after 5 failed attempts",
+      "details": [{ "field": "retry_after_seconds", "code": "LOCKED", "message": "780" }],
+      "request_id": "01JBQ9X2K7M4N8P3R5T7V9W1Y4",
+      "timestamp": "2026-09-08T10:15:02Z"
+    }
+  }
+}

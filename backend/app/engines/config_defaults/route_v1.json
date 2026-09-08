@@ -1,0 +1,90 @@
+{
+  "config_type": "ROUTE",
+  "version_no": 1,
+  "name": "Route scorecard v1 - expert baseline",
+  "notes": "Expert-judgement baseline. Not statistically fitted. Review quarterly. Doc 07 §7.3.",
+  "grade_thresholds": [
+    { "grade": "A", "min": 80, "max": 100, "label": "Class A - Low Risk", "risk_level": "LOW", "recommendation": "ELIGIBLE" },
+    { "grade": "B", "min": 60, "max": 79.99, "label": "Class B - Medium Risk", "risk_level": "MEDIUM", "recommendation": "ELIGIBLE_WITH_CONDITIONS" },
+    { "grade": "C", "min": 0, "max": 59.99, "label": "Class C - High Risk", "risk_level": "HIGH", "recommendation": "NOT_ELIGIBLE" }
+  ],
+  "components": [
+    {
+      "component_code": "CHARGING_INFRASTRUCTURE",
+      "label": "Charging Infrastructure",
+      "weight": 0.3000,
+      "display_order": 1,
+      "description": "The binding operational constraint for an EV: a vehicle that cannot reliably recharge cannot earn.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "STATION_DENSITY", "weight": 0.40, "rule": { "type": "LINEAR", "input": "charging_station_density", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 0.5, "y": 40 }, { "x": 1.0, "y": 70 }, { "x": 2.0, "y": 90 }, { "x": 3.0, "y": 100 }] } },
+          { "code": "MAX_GAP_VS_RANGE", "weight": 0.35, "rule": { "type": "LINEAR", "input": "gap_to_range_ratio", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 0.4, "y": 85 }, { "x": 0.6, "y": 60 }, { "x": 0.8, "y": 30 }, { "x": 1.0, "y": 0 }] } },
+          { "code": "FAST_CHARGER_SHARE", "weight": 0.25, "rule": { "type": "LINEAR", "input": "fast_charger_share", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 20 }, { "x": 0.25, "y": 60 }, { "x": 0.5, "y": 85 }, { "x": 1.0, "y": 100 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "ROAD_QUALITY",
+      "label": "Road Quality",
+      "weight": 0.2000,
+      "display_order": 2,
+      "description": "Drives energy consumption, wear, downtime and effective range. MIXED is computed as 40 + 0.6 x pitch percent.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "ROAD_CONDITION", "weight": 0.45, "rule": { "type": "BANDED", "input": "road_condition", "default_score": 50, "bands": [{ "value": "EXCELLENT", "score": 100 }, { "value": "GOOD", "score": 85 }, { "value": "FAIR", "score": 65 }, { "value": "POOR", "score": 35 }, { "value": "VERY_POOR", "score": 10 }] } },
+          { "code": "ROAD_TYPE", "weight": 0.30, "rule": { "type": "BANDED", "input": "road_type_effective", "default_score": 50, "bands": [{ "value": "PITCH", "score": 100 }, { "value": "MIXED", "score": -1 }, { "value": "GRAVEL", "score": 45 }, { "value": "OFF_ROAD", "score": 15 }] } },
+          { "code": "GRADIENT", "weight": 0.25, "rule": { "type": "BANDED", "input": "gradient_profile", "default_score": 60, "bands": [{ "value": "FLAT", "score": 100 }, { "value": "ROLLING", "score": 80 }, { "value": "HILLY", "score": 55 }, { "value": "STEEP", "score": 30 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "DEMAND",
+      "label": "Passenger / Freight Demand",
+      "weight": 0.3000,
+      "display_order": 3,
+      "description": "Determines whether the revenue assumption is real. Traffic is deliberately non-monotonic: busy is good, gridlocked is not.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "TRIP_VOLUME", "weight": 0.40, "rule": { "type": "LINEAR", "input": "estimated_daily_trips", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 2, "y": 30 }, { "x": 4, "y": 55 }, { "x": 6, "y": 75 }, { "x": 8, "y": 88 }, { "x": 12, "y": 100 }] } },
+          { "code": "DEMAND_INDEX", "weight": 0.30, "rule": { "type": "LINEAR", "input": "demand_index", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 200, "y": 40 }, { "x": 600, "y": 70 }, { "x": 1200, "y": 88 }, { "x": 2500, "y": 100 }] } },
+          { "code": "TRAFFIC", "weight": 0.15, "rule": { "type": "BANDED", "input": "traffic_density", "default_score": 70, "bands": [{ "value": "LOW", "score": 55 }, { "value": "MODERATE", "score": 85 }, { "value": "HIGH", "score": 100 }, { "value": "SEVERE", "score": 70 }] } },
+          { "code": "COMPETITION", "weight": 0.15, "rule": { "type": "BANDED", "input": "competition_level", "default_score": 60, "bands": [{ "value": "LOW", "score": 100 }, { "value": "MODERATE", "score": 75 }, { "value": "HIGH", "score": 45 }, { "value": "SATURATED", "score": 20 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "REVENUE_POTENTIAL",
+      "label": "Revenue Potential",
+      "weight": 0.1000,
+      "display_order": 4,
+      "description": "Margin per operating day. Weighted lower than demand because the two are partially correlated.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "DAILY_MARGIN", "weight": 0.50, "rule": { "type": "LINEAR", "input": "daily_margin", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 500, "y": 30 }, { "x": 1000, "y": 55 }, { "x": 2000, "y": 80 }, { "x": 3500, "y": 95 }, { "x": 5000, "y": 100 }] } },
+          { "code": "MARGIN_RATIO", "weight": 0.30, "rule": { "type": "LINEAR", "input": "margin_ratio", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 0.15, "y": 35 }, { "x": 0.25, "y": 60 }, { "x": 0.35, "y": 82 }, { "x": 0.5, "y": 100 }] } },
+          { "code": "REVENUE_PER_KM", "weight": 0.20, "rule": { "type": "LINEAR", "input": "revenue_per_km", "direction": "HIGHER_IS_BETTER", "points": [{ "x": 0, "y": 0 }, { "x": 8, "y": 35 }, { "x": 15, "y": 65 }, { "x": 25, "y": 88 }, { "x": 40, "y": 100 }] } }
+        ]
+      }
+    },
+    {
+      "component_code": "ROUTE_RISK",
+      "label": "Route / Environmental Risk",
+      "weight": 0.1000,
+      "display_order": 5,
+      "description": "Higher score means lower risk. Episodic rather than continuous, hence the modest weight.",
+      "scoring_rules": {
+        "type": "COMPOSITE",
+        "sub_factors": [
+          { "code": "FLOOD_LANDSLIDE", "weight": 0.35, "rule": { "type": "BANDED", "input": "flood_landslide_risk", "default_score": 60, "bands": [{ "value": "NONE", "score": 100 }, { "value": "LOW", "score": 85 }, { "value": "MODERATE", "score": 60 }, { "value": "HIGH", "score": 30 }, { "value": "SEVERE", "score": 5 }] } },
+          { "code": "MONSOON_DISRUPTION", "weight": 0.30, "rule": { "type": "LINEAR", "input": "monsoon_disruption_days", "direction": "LOWER_IS_BETTER", "points": [{ "x": 0, "y": 100 }, { "x": 10, "y": 85 }, { "x": 25, "y": 65 }, { "x": 45, "y": 40 }, { "x": 75, "y": 15 }, { "x": 120, "y": 0 }] } },
+          { "code": "SEASONAL", "weight": 0.20, "rule": { "type": "BANDED", "input": "seasonal_risk", "default_score": 60, "bands": [{ "value": "NONE", "score": 100 }, { "value": "LOW", "score": 85 }, { "value": "MODERATE", "score": 60 }, { "value": "HIGH", "score": 30 }, { "value": "SEVERE", "score": 5 }] } },
+          { "code": "SECURITY", "weight": 0.15, "rule": { "type": "BANDED", "input": "security_risk", "default_score": 70, "bands": [{ "value": "LOW", "score": 100 }, { "value": "MODERATE", "score": 60 }, { "value": "HIGH", "score": 20 }] } }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "_endpoint": "POST /api/v1/routes/{id}/assess",
+  "_permission": "route:assess",
+  "_request": { "notes": "Initial assessment" },
+
+  "id": "c7f2a913-4b8d-4e51-9c30-2a7f6d1b8e45",
+  "route_id": "b2c8f4a1-6d3e-4c9b-8a72-1e5d0f3b7c94",
+  "route_name": "Kathmandu-Dhulikhel",
+  "total_score": 90.12,
+  "grade": "A",
+  "grade_label": "Class A - Low Risk",
+  "risk_level": "LOW",
+  "charging_adequacy": "ADEQUATE",
+  "revenue_potential": "HIGH",
+  "recommendation": "ELIGIBLE",
+  "components": [
+    {
+      "code": "CHARGING_INFRASTRUCTURE",
+      "label": "Charging Infrastructure",
+      "normalized_score": 91.13,
+      "weight": 0.30,
+      "weighted_score": 27.339,
+      "raw_inputs": { "charging_station_density": 2.0, "gap_to_range_ratio": 0.0857, "fast_charger_share": 0.5 },
+      "sub_factors": [
+        { "code": "STATION_DENSITY", "value": 2.0, "score": 90.00, "weight": 0.40, "contribution": 36.000 },
+        { "code": "MAX_GAP_VS_RANGE", "value": 0.085714, "score": 96.79, "weight": 0.35, "contribution": 33.875 },
+        { "code": "FAST_CHARGER_SHARE", "value": 0.5, "score": 85.00, "weight": 0.25, "contribution": 21.250 }
+      ],
+      "explanation": "6 stations over 30 km (2.0 per 10 km) with a maximum gap of 12 km; 3 DC fast chargers."
+    },
+    {
+      "code": "ROAD_QUALITY",
+      "label": "Road Quality",
+      "normalized_score": 88.25,
+      "weight": 0.20,
+      "weighted_score": 17.650,
+      "raw_inputs": { "road_condition": "GOOD", "road_type": "PITCH", "gradient_profile": "ROLLING" },
+      "explanation": "Fully pitched road in good condition over rolling terrain."
+    },
+    {
+      "code": "DEMAND",
+      "label": "Passenger / Freight Demand",
+      "normalized_score": 87.85,
+      "weight": 0.30,
+      "weighted_score": 26.355,
+      "raw_inputs": { "estimated_daily_trips": 8, "demand_index": 1200, "traffic_density": "HIGH", "competition_level": "MODERATE" },
+      "explanation": "8 projected trips/day against 1,200 daily passengers; moderate operator competition."
+    },
+    {
+      "code": "REVENUE_POTENTIAL",
+      "label": "Revenue Potential",
+      "normalized_score": 98.67,
+      "weight": 0.10,
+      "weighted_score": 9.867,
+      "raw_inputs": { "daily_margin": 5266.72, "margin_ratio": 0.693, "revenue_per_km": 31.67 },
+      "explanation": "NPR 5,267 daily margin on NPR 7,600 revenue (69%)."
+    },
+    {
+      "code": "ROUTE_RISK",
+      "label": "Route / Environmental Risk",
+      "normalized_score": 89.05,
+      "weight": 0.10,
+      "weighted_score": 8.905,
+      "raw_inputs": { "flood_landslide_risk": "LOW", "monsoon_disruption_days": 6, "seasonal_risk": "LOW", "security_risk": "LOW" },
+      "explanation": "Minimal seasonal exposure at 6 disruption days per year."
+    }
+  ],
+  "risk_factors": [],
+  "positive_factors": [
+    { "code": "DENSE_CHARGING", "message": "6 stations over 30 km - dense charging coverage" },
+    { "code": "FAST_CHARGING_AVAILABLE", "message": "3 DC fast chargers available on the corridor" },
+    { "code": "EXCELLENT_ROAD", "message": "Fully pitched road in good condition" },
+    { "code": "STRONG_DEMAND", "message": "High passenger volume on the corridor" },
+    { "code": "HEALTHY_MARGIN", "message": "Operating margin 69% of revenue" },
+    { "code": "SHORT_ROUTE_EV_FRIENDLY", "message": "Short corridor well within single-charge range" },
+    { "code": "NO_SEASONAL_DISRUPTION", "message": "Year-round operability" }
+  ],
+  "charging_analysis": {
+    "station_count": 6,
+    "fast_charger_count": 3,
+    "density_per_10km": 2.0,
+    "max_gap_km": 12.0,
+    "reference_range_km": 140,
+    "gap_to_range_ratio": 0.085714,
+    "verdict": "ADEQUATE",
+    "stations": [
+      { "name": "Koteshwor NEA Hub", "distance_from_origin_km": 0.0, "type": "DC_FAST", "power_kw": 60 },
+      { "name": "Sallaghari Charge Point", "distance_from_origin_km": 7.5, "type": "DC_FAST", "power_kw": 60 },
+      { "name": "Sanga View Point", "distance_from_origin_km": 14.0, "type": "AC", "power_kw": 22 },
+      { "name": "Banepa Bus Park DC", "distance_from_origin_km": 20.0, "type": "DC_FAST", "power_kw": 50 },
+      { "name": "Panauti Road AC", "distance_from_origin_km": 25.0, "type": "AC", "power_kw": 22 },
+      { "name": "Dhulikhel Bus Park", "distance_from_origin_km": 30.0, "type": "AC", "power_kw": 22 }
+    ]
+  },
+  "explanation": "Kathmandu-Dhulikhel scores 90.1/100 (Class A - Low Risk). Charging infrastructure is the strongest contributor: 6 stations across 30 km (2.0 per 10 km) including 3 DC fast chargers, with a maximum gap of 12 km - under 9% of usable range. Demand is strong at 8 projected trips/day against 1,200 daily passengers, moderated by moderate operator competition. The corridor is fully pitched in good condition over rolling terrain. Projected daily margin is NPR 5,267 on NPR 7,600 revenue (69%), with energy cost of NPR 2.22/km. Seasonal exposure is minimal at 6 disruption days per year. Recommendation: eligible for EV financing.",
+  "estimated_monthly_revenue": 197600.00,
+  "estimated_monthly_profit": 136936.50,
+  "config_version": { "id": 1, "config_type": "ROUTE", "version_no": 1, "name": "Route scorecard v1 - expert baseline" },
+  "engine_version": "route-engine@1.0.0",
+  "assessed_by": { "id": "9c1e0f22-77aa-4b8c-9d31-0e4a6b2f8c17", "name": "Ramesh Adhikari" },
+  "assessed_at": "2026-09-08T04:12:00Z"
+}

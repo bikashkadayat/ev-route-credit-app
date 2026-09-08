@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "C4", "RUF"]
+# RUF001/RUF002: the documentation and docstrings use real typography (em dashes, section
+# signs, en dashes in Nepali place names). That is deliberate, not an encoding accident.
+ignore = ["S101", "B008", "RUF012", "UP007", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "E501"]
+"scripts/*" = ["S", "E501", "T201"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = "(migrations|tests|scripts)"

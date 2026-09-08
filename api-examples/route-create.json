@@ -1,0 +1,71 @@
+{
+  "_endpoint": "POST /api/v1/routes",
+  "_permission": "route:create",
+  "_request": {
+    "route_name": "Kathmandu\u2013Dhulikhel",
+    "origin": "Kathmandu",
+    "destination": "Dhulikhel",
+    "province": "Bagmati",
+    "district": "Kavrepalanchok",
+    "route_type": "INTERCITY",
+    "total_distance_km": 30.0,
+    "road_type": "PITCH",
+    "road_condition": "GOOD",
+    "gradient_profile": "ROLLING",
+    "pitch_road_percent": 100,
+    "charging_station_count": 6,
+    "fast_charger_count": 3,
+    "avg_charging_distance_km": 5.0,
+    "max_charging_gap_km": 12.0,
+    "passenger_volume_daily": 1200,
+    "freight_volume_daily_tons": 0,
+    "estimated_daily_trips": 8,
+    "avg_fare_per_trip": 950,
+    "avg_freight_revenue_per_trip": 0,
+    "traffic_density": "HIGH",
+    "competition_level": "MODERATE",
+    "operator_count": 45,
+    "seasonal_risk": "LOW",
+    "monsoon_disruption_days": 6,
+    "flood_landslide_risk": "LOW",
+    "security_risk": "LOW",
+    "electricity_tariff_per_kwh": 12.0,
+    "estimated_daily_operating_cost": 1800,
+    "permit_required": true
+  },
+  "_response_201": {
+    "id": "b2c8f4a1-6d3e-4c9b-8a72-1e5d0f3b7c94",
+    "route_code": "RT-KTM-DHU-001",
+    "route_name": "Kathmandu\u2013Dhulikhel",
+    "charging_station_density": 2.0,
+    "estimated_daily_revenue": 7600.0,
+    "estimated_daily_energy_cost": 533.28,
+    "status": "DRAFT",
+    "latest_score": null,
+    "latest_grade": null,
+    "created_by": { "id": "...", "name": "Ramesh Adhikari" },
+    "created_at": "2026-09-08T04:02:17Z"
+  },
+  "_response_422": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Request validation failed",
+      "details": [
+        { "field": "fast_charger_count", "code": "LESS_THAN_EQUAL", "message": "Cannot exceed charging_station_count (6)" },
+        { "field": "avg_fare_per_trip", "code": "MISSING", "message": "Required when passenger_volume_daily is greater than 0" },
+        { "field": "max_charging_gap_km", "code": "LESS_THAN_EQUAL", "message": "Cannot exceed total_distance_km (30.0)" }
+      ],
+      "request_id": "01JBQ9X2K7M4N8P3R5T7V9W1Y5",
+      "timestamp": "2026-09-08T04:02:17Z"
+    }
+  },
+  "_response_409": {
+    "error": {
+      "code": "DUPLICATE_RESOURCE",
+      "message": "A route already exists for Kathmandu \u2192 Dhulikhel",
+      "details": [{ "field": "route_name", "code": "DUPLICATE", "message": "Existing route id b2c8f4a1-6d3e-4c9b-8a72-1e5d0f3b7c94" }],
+      "request_id": "01JBQ9X2K7M4N8P3R5T7V9W1Y6",
+      "timestamp": "2026-09-08T04:03:01Z"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+# EV-RCA local stack — Doc 04 §4.3.1
+# Bring up the database, then run migrations and seeds (see the Makefile).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: evrca-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-evrca}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evrca}
+      POSTGRES_DB: ${POSTGRES_DB:-evrca}
+      # deterministic collation so ORDER BY matches across machines
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evrca} -d ${POSTGRES_DB:-evrca}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # Optional in MVP (Doc 02 §2.3.4): the app falls back to in-process caching and a
+  # DB-backed rate limiter when Redis is absent.
+  redis:
+    image: redis:7-alpine
+    container_name: evrca-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    profiles: ["full"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+  redisdata:

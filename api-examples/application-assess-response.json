@@ -1,0 +1,139 @@
+{
+  "_endpoint": "POST /api/v1/applications/{id}/assess",
+  "_permission": "application:assess",
+  "_request": { "force_route_reassessment": false, "route_waiver": false, "waiver_justification": null },
+
+  "application_id": "ap12c6f0-8b34-4e2a-9f71-5c8d3a0e6b19",
+  "application_number": "LA-2026-000101",
+  "assessment_id": "la8873f2-1c05-4d6b-8e93-7a2f4b1c0d58",
+  "knockouts_triggered": [],
+  "route": {
+    "assessment_id": "c7f2a913-4b8d-4e51-9c30-2a7f6d1b8e45",
+    "route_name": "Kathmandu-Dhulikhel",
+    "score": 90.12,
+    "grade": "A",
+    "is_reused": true,
+    "assessed_at": "2026-09-08T04:12:00Z",
+    "is_stale": false
+  },
+  "customer": {
+    "credit_score_id": "cs44a1b8-9e02-4c73-b5d1-6f8a2c9e4b07",
+    "total_score": 75.17,
+    "grade": "B",
+    "grade_label": "B - Good",
+    "risk_level": "MODERATE",
+    "dti_ratio": 0.0855,
+    "foir_ratio": 0.5877,
+    "disposable_income": 72600.00,
+    "components": [
+      { "code": "CREDIT_HISTORY", "label": "Credit / Bureau History", "normalized_score": 85.82, "weight": 0.30, "weighted_score": 25.746 },
+      { "code": "INCOME_CASHFLOW", "label": "Income & Cash Flow", "normalized_score": 64.43, "weight": 0.25, "weighted_score": 16.108 },
+      { "code": "EXISTING_DEBT", "label": "Existing Debt Burden", "normalized_score": 61.66, "weight": 0.15, "weighted_score": 9.249 },
+      { "code": "DOWN_PAYMENT", "label": "Down Payment / Equity", "normalized_score": 68.74, "weight": 0.10, "weighted_score": 6.874 },
+      { "code": "EXPERIENCE", "label": "Business / Driving Experience", "normalized_score": 81.00, "weight": 0.10, "weighted_score": 8.100 },
+      { "code": "VEHICLE_ECONOMICS", "label": "Vehicle Economics", "normalized_score": 90.96, "weight": 0.10, "weighted_score": 9.096 }
+    ],
+    "risk_factors": [
+      { "code": "HIGH_EMI_BURDEN", "severity": "HIGH", "message": "Post-loan FOIR of 58.77% exceeds the policy threshold" }
+    ],
+    "positive_factors": [
+      { "code": "STRONG_CREDIT_RECORD", "message": "Bureau score 742 with no previous defaults" },
+      { "code": "STRONG_DOWN_PAYMENT", "message": "Down payment of 30.43% is well above the minimum" },
+      { "code": "EXPERIENCED_OPERATOR", "message": "6 years of commercial driving experience" }
+    ]
+  },
+  "vehicle_economics": {
+    "score": 90.96,
+    "energy_cost_per_km": 2.445,
+    "daily_energy_cost": 586.88,
+    "daily_maintenance": 132.00,
+    "daily_driver_cost": 0.00,
+    "daily_fixed_accrual": 310.90,
+    "daily_gross_revenue": 7600.00,
+    "daily_net_contribution": 6570.22,
+    "seasonal_factor": 0.98356,
+    "monthly_net_contribution": 168017.61,
+    "payback_months": 19.05
+  },
+  "final": {
+    "final_score": 84.31,
+    "risk_grade": "B",
+    "risk_level": "LOW",
+    "weights": { "route": 0.40, "customer": 0.40, "vehicle": 0.20 },
+    "contributions": { "route": 36.048, "customer": 30.068, "vehicle": 18.192 },
+    "recommendation": "MANUAL_REVIEW",
+    "requested": {
+      "amount": 3200000.00,
+      "tenure_months": 60,
+      "interest_rate": 13.00,
+      "emi": 72809.83,
+      "ltv_percent": 69.5652,
+      "dscr": 2.3076,
+      "foir_post_loan": 0.587654
+    },
+    "recommended": {
+      "amount": 2960000.00,
+      "tenure_months": 60,
+      "interest_rate": 13.00,
+      "emi": 67349.10,
+      "max_ltv_percent": 75.00,
+      "applied_ltv_percent": 64.35,
+      "dscr": 2.4947,
+      "foir_post_loan": 0.5500,
+      "payback_months": 19.05
+    },
+    "binding_constraint": "EMI_CAPACITY_FOIR",
+    "reasons": [
+      {
+        "code": "HIGH_EMI_BURDEN",
+        "type": "NEGATIVE",
+        "impact": "HIGH",
+        "message": "Post-loan FOIR of 58.77% at the requested amount exceeds the 50% approval threshold",
+        "metric": { "name": "foir_post_loan", "value": 0.587654, "threshold": 0.50 }
+      },
+      {
+        "code": "TIGHT_DISPOSABLE_INCOME",
+        "type": "NEGATIVE",
+        "impact": "HIGH",
+        "message": "Disposable income covers the proposed EMI only 1.00x",
+        "metric": { "name": "disposable_to_emi_ratio", "value": 0.99712, "threshold": 1.30 }
+      },
+      {
+        "code": "HEALTHY_DSCR",
+        "type": "POSITIVE",
+        "impact": "HIGH",
+        "message": "Vehicle generates 2.31x the requested EMI in net contribution",
+        "metric": { "name": "dscr", "value": 2.3076, "threshold": 1.30 }
+      },
+      {
+        "code": "STRONG_ROUTE",
+        "type": "POSITIVE",
+        "impact": "HIGH",
+        "message": "Route is Class A with a score of 90.12",
+        "metric": { "name": "route_score", "value": 90.12, "threshold": 80.0 }
+      },
+      {
+        "code": "STRONG_CREDIT_RECORD",
+        "type": "POSITIVE",
+        "impact": "MEDIUM",
+        "message": "Clean bureau record: score 742, no defaults, 54 months of history",
+        "metric": { "name": "bureau_score", "value": 742, "threshold": 680 }
+      },
+      {
+        "code": "STRONG_DOWN_PAYMENT",
+        "type": "POSITIVE",
+        "impact": "MEDIUM",
+        "message": "Down payment of 30.43% is above the minimum",
+        "metric": { "name": "down_payment_ratio", "value": 0.304348, "threshold": 0.20 }
+      }
+    ]
+  },
+  "config_versions": { "route": 1, "customer": 1, "final": 1 },
+  "engine_versions": {
+    "route": "route-engine@1.0.0",
+    "customer": "customer-engine@1.0.0",
+    "final": "final-engine@1.0.0"
+  },
+  "assessed_by": { "id": "9c1e0f22-77aa-4b8c-9d31-0e4a6b2f8c17", "name": "Ramesh Adhikari" },
+  "assessed_at": "2026-09-08T05:02:11Z"
+}
