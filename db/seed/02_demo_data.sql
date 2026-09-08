@@ -29,7 +29,7 @@ END $$;
 INSERT INTO users (email, password_hash, full_name, phone, employee_code, role_id, branch_code,
                    is_active, must_change_password, password_changed_at)
 SELECT v.email,
-       '$argon2id$v=19$m=65536,t=3,p=4$ZGVtb3NhbHRkZW1vc2FsdA$DEMOHASHREPLACEDBYSEEDSCRIPT',
+       '$argon2id$v=19$m=65536,t=3,p=4$BtK+qwnHsakbpm+jNJ2WZQ$cXIS0GvyK5LCrEfjwNOp5itjGnmcL00+crw3RE3vakA',
        v.name, v.phone, v.emp, r.id, v.branch, true, false, now()
 FROM (VALUES
  ('sabina.karki@bank.com.np',    'Sabina Karki',    '+9779801000001','EMP-0102','RISK_MANAGER',      'HO'),

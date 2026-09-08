@@ -8,7 +8,15 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Index, LargeBinary, Numeric, Text, UniqueConstraint
+from sqlalchemy import (
+    Computed,
+    ForeignKey,
+    Index,
+    LargeBinary,
+    Numeric,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -127,9 +135,20 @@ class ApplicantFinancial(Base, TimestampMixin):
     income_verified: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false")
     notes: Mapped[str | None] = mapped_column(Text)
-    # generated columns — the database computes these, never the ORM
-    total_monthly_income: Mapped[Decimal] = money(nullable=False)
-    total_monthly_expenses: Mapped[Decimal] = money(nullable=False)
+    # Generated columns. ``Computed`` is what tells SQLAlchemy to leave them out of every
+    # INSERT and UPDATE and read them back afterwards; without it PostgreSQL rejects the
+    # write with "cannot insert a non-DEFAULT value into a generated column".
+    total_monthly_income: Mapped[Decimal] = money(
+        Computed(
+            "monthly_income + monthly_business_revenue + other_monthly_income",
+            persisted=True,
+        ),
+        nullable=False,
+    )
+    total_monthly_expenses: Mapped[Decimal] = money(
+        Computed("monthly_household_expenses + monthly_business_expenses", persisted=True),
+        nullable=False,
+    )
     created_by: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("users.id"))
 
     applicant: Mapped[Applicant] = relationship(back_populates="financials")

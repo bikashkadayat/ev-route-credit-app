@@ -94,7 +94,14 @@ def test_every_table_in_the_database_has_a_model(db_tables):
 
 
 def test_table_count_matches():
-    assert len(Base.metadata.tables) == 40
+    """40 tables from Doc 05, plus the two the password requirements needed.
+
+    ``password_reset_tokens`` and ``password_history`` are not in Doc 05's table list.
+    They were added because FR-1.6 (single-use reset token) and FR-1.2 (reject the last
+    five passwords) cannot be implemented without storage, and inventing them silently
+    would have been worse than recording the gap — see MVP_GAP_AUDIT.md §D.
+    """
+    assert len(Base.metadata.tables) == 42
 
 
 @pytest.mark.parametrize("table_name", sorted(Base.metadata.tables))

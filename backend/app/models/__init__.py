@@ -29,7 +29,15 @@ from app.models.credit import (
     LoanAssessment,
     UnderwritingDecision,
 )
-from app.models.identity import Permission, Role, RolePermission, User, UserSession
+from app.models.identity import (
+    PasswordHistory,
+    PasswordResetToken,
+    Permission,
+    Role,
+    RolePermission,
+    User,
+    UserSession,
+)
 from app.models.portfolio import (
     AlertActivity,
     BatteryMetric,
@@ -46,12 +54,13 @@ from app.models.portfolio import (
 from app.models.system import AuditLog, IdempotencyKey, JobRun, Notification, SystemSetting
 
 __all__ = [
-    "AlertActivity", "Applicant", "ApplicantDocument", "ApplicantFinancial", "AuditLog",
-    "Base", "BatteryMetric", "ChargingSession", "ChargingStation", "CreditBureauReport",
-    "CreditScore", "CreditScoreComponent", "ExistingObligation", "IdempotencyKey",
-    "JobRun", "Loan", "LoanApplication", "LoanAssessment", "LoanMonitoringSnapshot",
-    "MaintenanceEvent", "Notification", "Permission", "Repayment", "RepaymentSchedule",
-    "RiskAlert", "RiskRule", "RiskRuleCondition", "Role", "RolePermission", "Route",
+    "AlertActivity", "Applicant", "ApplicantDocument", "ApplicantFinancial",
+    "AuditLog", "Base", "BatteryMetric", "ChargingSession", "ChargingStation",
+    "CreditBureauReport", "CreditScore", "CreditScoreComponent", "ExistingObligation",
+    "IdempotencyKey", "JobRun", "Loan", "LoanApplication", "LoanAssessment",
+    "LoanMonitoringSnapshot", "MaintenanceEvent", "Notification", "PasswordHistory",
+    "PasswordResetToken", "Permission", "Repayment", "RepaymentSchedule", "RiskAlert",
+    "RiskRule", "RiskRuleCondition", "Role", "RolePermission", "Route",
     "RouteAssessment", "RouteScoreComponent", "ScoringConfigComponent",
     "ScoringConfiguration", "SystemSetting", "UnderwritingDecision", "User",
     "UserSession", "Vehicle", "VehicleModel", "VehicleTelemetry",

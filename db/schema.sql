@@ -156,6 +156,34 @@ CREATE INDEX idx_sessions_user    ON user_sessions (user_id, revoked_at);
 CREATE INDEX idx_sessions_family  ON user_sessions (family_id);
 CREATE INDEX idx_sessions_expiry  ON user_sessions (expires_at);
 
+-- -------------------------------------------------------------------------------------
+-- Password security (FR-1.2, FR-1.6)
+--
+-- Not in the original Doc 05 table list. Both are required by MUST requirements that
+-- cannot be met without storage: a reset token that is not stored cannot be single-use,
+-- and rejecting the last five passwords requires keeping their hashes. Only hashes are
+-- kept — a stored plaintext reset token is a password equivalent.
+-- -------------------------------------------------------------------------------------
+CREATE TABLE password_reset_tokens (
+    id           BIGSERIAL PRIMARY KEY,
+    user_id      BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash   TEXT        NOT NULL,
+    issued_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at   TIMESTAMPTZ NOT NULL,
+    used_at      TIMESTAMPTZ,
+    requested_ip INET,
+    CONSTRAINT uq_reset_token UNIQUE (token_hash)
+);
+CREATE INDEX idx_reset_user ON password_reset_tokens (user_id, expires_at);
+
+CREATE TABLE password_history (
+    id            BIGSERIAL PRIMARY KEY,
+    user_id       BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    password_hash TEXT        NOT NULL,
+    changed_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_pwhistory_user ON password_history (user_id, changed_at DESC);
+
 -- =====================================================================================
 -- 4. APPLICANTS
 -- =====================================================================================

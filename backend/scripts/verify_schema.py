@@ -252,6 +252,33 @@ def main() -> int:
                 print(f"  [FAIL] reference seed is not idempotent: "
                       f"{str(exc).splitlines()[0][:110]}")
 
+            print("\nseeded credentials:")
+            try:
+                # The script runs from backend/scripts; the application package sits one
+                # level up and is needed only for this check.
+                sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+                from app.core.security import verify_password
+
+                rows = conn.execute(
+                    "SELECT email, password_hash FROM users ORDER BY id"
+                ).fetchall()
+                # Doc 16 §16.1 prints this password for the demo accounts. The seed once
+                # shipped a placeholder string here, which left every documented account
+                # unable to log in; this check makes that class of defect loud.
+                bad = [
+                    email for email, digest in rows
+                    if not verify_password("Demo@2026!Ev", digest)
+                ]
+                ok = bool(rows) and not bad
+                failures += 0 if ok else 1
+                print(f"  [{'PASS' if ok else 'FAIL'}] every seeded user authenticates with "
+                      f"the documented demo password ({len(rows)} users)"
+                      + (f" — failing: {bad}" if bad else ""))
+            except Exception as exc:
+                failures += 1
+                print(f"  [FAIL] seeded credential check: "
+                      f"{str(exc).splitlines()[0][:110]}")
+
         print(f"\n{'ALL CHECKS PASSED' if failures == 0 else f'{failures} CHECK(S) FAILED'}")
         return 0 if failures == 0 else 1
     finally:

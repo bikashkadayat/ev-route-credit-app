@@ -47,23 +47,27 @@ class Base(DeclarativeBase):
 # ---------------------------------------------------------------------------
 # Column factories — Doc 05 §5.1 principles 2, 3 and 11
 # ---------------------------------------------------------------------------
-def money(**kw: Any) -> Mapped[Decimal]:
-    """NUMERIC(14,2). Never float — Doc 05 §5.1 principle 2."""
-    return mapped_column(Numeric(14, 2), **kw)
+def money(*args: Any, **kw: Any) -> Mapped[Decimal]:
+    """NUMERIC(14,2). Never float — Doc 05 §5.1 principle 2.
+
+    Positional arguments are passed through to ``mapped_column`` so a column can carry a
+    schema construct such as ``Computed`` for a database-generated total.
+    """
+    return mapped_column(Numeric(14, 2), *args, **kw)
 
 
-def small_money(**kw: Any) -> Mapped[Decimal]:
-    return mapped_column(Numeric(12, 2), **kw)
+def small_money(*args: Any, **kw: Any) -> Mapped[Decimal]:
+    return mapped_column(Numeric(12, 2), *args, **kw)
 
 
-def score(**kw: Any) -> Mapped[Decimal]:
+def score(*args: Any, **kw: Any) -> Mapped[Decimal]:
     """NUMERIC(5,2) — 0.00 to 100.00."""
-    return mapped_column(Numeric(5, 2), **kw)
+    return mapped_column(Numeric(5, 2), *args, **kw)
 
 
-def ratio(**kw: Any) -> Mapped[Decimal]:
+def ratio(*args: Any, **kw: Any) -> Mapped[Decimal]:
     """NUMERIC(6,4) — weights and ratios stored as fractions."""
-    return mapped_column(Numeric(6, 4), **kw)
+    return mapped_column(Numeric(6, 4), *args, **kw)
 
 
 def pk() -> Mapped[int]:

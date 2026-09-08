@@ -45,6 +45,7 @@ DROP TABLE IF EXISTS idempotency_keys, job_runs, system_settings, notifications,
     loan_applications, route_score_components, route_assessments,
     scoring_config_components, scoring_configurations, charging_stations, routes,
     vehicles, vehicle_models, credit_bureau_reports, existing_obligations,
+    password_history, password_reset_tokens,
     applicant_financials, applicants, user_sessions, users, role_permissions,
     permissions, roles CASCADE;
 

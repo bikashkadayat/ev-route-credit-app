@@ -135,11 +135,13 @@ ON CONFLICT DO NOTHING;
 -- -------------------------------------------------------------------------------------
 -- 4. BOOTSTRAP ADMIN
 --    Production: password comes from the deploy process; must_change_password = true.
---    Hash below is Argon2id for 'Demo@2026!Ev' (replace in production).
+--    Hash below is a real Argon2id digest of 'Demo@2026!Ev' (Doc 16 16.1), so the
+--    documented demo credentials actually authenticate. Replace in production: the
+--    production seed takes the Super Admin password from an environment variable.
 -- -------------------------------------------------------------------------------------
 INSERT INTO users (email, password_hash, full_name, role_id, branch_code, is_active, must_change_password)
 SELECT 'admin@bank.com.np',
-       '$argon2id$v=19$m=65536,t=3,p=4$REPLACE_IN_PRODUCTION$REPLACE_IN_PRODUCTION',
+       '$argon2id$v=19$m=65536,t=3,p=4$BtK+qwnHsakbpm+jNJ2WZQ$cXIS0GvyK5LCrEfjwNOp5itjGnmcL00+crw3RE3vakA',
        'System Administrator', r.id, 'HO', true, true
 FROM roles r WHERE r.code = 'SUPER_ADMIN'
 ON CONFLICT DO NOTHING;

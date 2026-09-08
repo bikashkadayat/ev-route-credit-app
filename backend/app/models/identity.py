@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import INET, UUID
@@ -111,10 +111,20 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
         Index("idx_users_branch", "branch_code"),
     )
 
-    @property
-    def is_locked(self) -> bool:
-        """Lockout is time-based; the caller supplies 'now' so this stays testable."""
-        return self.locked_until is not None
+    def is_locked_at(self, now: datetime) -> bool:
+        """Lockout is time-based, so the caller supplies the instant.
+
+        The previous ``is_locked`` property read "locked_until is not None", which stayed
+        true forever once an account had ever been locked — the stamp is left in place as
+        evidence and is not cleared when the lockout elapses. Comparing against a supplied
+        ``now`` is what its own docstring always claimed to do.
+        """
+        if self.locked_until is None:
+            return False
+        locked_until = self.locked_until
+        if locked_until.tzinfo is None:
+            locked_until = locked_until.replace(tzinfo=UTC)
+        return locked_until > now
 
 
 class UserSession(Base):
@@ -147,3 +157,49 @@ class UserSession(Base):
         Index("idx_sessions_family", "family_id"),
         Index("idx_sessions_expiry", "expires_at"),
     )
+
+
+class PasswordResetToken(Base):
+    """FR-1.6 — single-use, 30-minute reset tokens.
+
+    Only the SHA-256 hash is stored: a reset token in plaintext is a password equivalent,
+    and a database that holds one has effectively stored every user's password. ``used_at``
+    is what makes it single-use — redemption stamps it, and a stamped token is never
+    accepted again.
+    """
+
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    issued_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    requested_ip: Mapped[str | None] = mapped_column(INET)
+
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_reset_token"),
+        Index("idx_reset_user", "user_id", "expires_at"),
+    )
+
+
+class PasswordHistory(Base):
+    """FR-1.2 — the last five hashes, so a password cannot be recycled."""
+
+    __tablename__ = "password_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    __table_args__ = (Index("idx_pwhistory_user", "user_id", "changed_at"),)
